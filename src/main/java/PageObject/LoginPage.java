@@ -1,74 +1,107 @@
 package PageObject;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeOptions;
 
-public class LoginPage {
+public class LoginPage extends BasePage {
+    MainPage mainPage = new MainPage(driver);
+    RegistrationPage registrationPage = new RegistrationPage(driver);
+    PasswordRecovery passwordRecovery = new PasswordRecovery(driver);
 
-    private WebDriver driver;
+    private final By titleEnter = By.xpath("//h2[text()='Вход']");
 
-    // Используйте конструктор для инициализации WebDriver
-    public LoginPage(WebDriver webDriver) {
-        this.driver = webDriver;
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--start-maximized");
+    private final By fieldEmail = By.xpath("//input[@name='name']");
+
+    private final By fieldPassword = By.xpath("//input[@name='Пароль']");
+
+    private final By buttonLogin = By.xpath("//button[@class='button_button__33qZ0 button_button_type_primary__1O7Bx button_button_size_medium__3zxIa']");
+    private final By buttonRegister = By.xpath("//a[@href='/register']");
+
+    private final By buttonRecoverPassword = By.xpath("//a[@href='/forgot-password']");
+
+    private final By buttonLogo = By.xpath("//div[@class='AppHeader_header__logo__2D0X2']/a");
+
+    public LoginPage(WebDriver driver) {
+        super(driver);
     }
 
-    // Локатор для ссылки "Личный кабинет"
-    private final By linkPersonalAccount = By.xpath("//a[@class='AppHeader_header__link__3D_hX']/p[@class='AppHeader_header__linkText__3q_va ml-2']");
-
-    // Локатор для поля ввода электронной почты
-    private final By inputEmail = By.xpath("//input[@class='text input__textfield text_type_main-default' and @type='text' and @name='name']");
-
-    // Локатор для поля ввода пароля
-    private final By inputPassword = By.xpath("//input[@type='password']");
-
-    // Локатор для кнопки "Войти"
-    private final By loginButton = By.className("button_button__33qZ0");
-
-    // Метод для получения локатора ссылки "Личный кабинет"
-    public By getLinkPersonalAccountLocator() {
-        return linkPersonalAccount;
+    @Step("loading page")
+    public void waitForLoadElement() {
+        waitForElementVisibility(titleEnter);
     }
 
-    // Метод для получения локатора поля ввода электронной почты
-    public By getInputEmailLocator() {
-        return inputEmail;
+    @Step("click register button")
+    public void clickRegister() {
+        driver.findElement(buttonRegister).click();
     }
 
-    // Метод для получения локатора поля ввода пароля
-    public By getInputPasswordLocator() {
-        return inputPassword;
+    @Step("filling authorization fields")
+    public void fillLoginForm(String email, String password) {
+        driver.findElement(fieldEmail).sendKeys(email);
+        driver.findElement(fieldPassword).sendKeys(password);
     }
 
-    // Метод для получения локатора кнопки "Войти"
-    public By getLoginButtonLocator() {
-        return loginButton;
-    }
-
-    // Метод для ввода электронной почты
-    public void enterEmail(String email) {
-        WebElement emailInput = driver.findElement(inputEmail);
-        emailInput.clear();
-        emailInput.sendKeys(email);
-    }
-
-    // Метод для ввода пароля
-    public void enterPassword(String password) {
-        WebElement passwordInput = driver.findElement(inputPassword);
-        passwordInput.clear();
-        passwordInput.sendKeys(password);
-    }
-
-    // Метод для клика по кнопке "Войти"
+    @Step("click login button")
     public void clickLoginButton() {
-        driver.findElement(loginButton).click();
-    }
-    public boolean isEmailInputDisplayed() {
-        return driver.findElement(inputEmail).isDisplayed();
+        driver.findElement(buttonLogin).click();
     }
 
+    @Step("click logo button")
+    public void clickLogo() {
+        driver.findElement(buttonLogo).click();
+    }
+
+    @Step("click forget password button")
+    public void clickReset() {
+        driver.findElement(buttonRecoverPassword).click();
+    }
+
+    @Step("check Login display")
+    public boolean isEnterLabelVisible() {
+        return driver.findElement(titleEnter).isDisplayed();
+    }
+
+    @Step("log in from main page test")
+    public void login(String email, String password) {
+        mainPage.clickLogin();
+        waitForLoadElement();
+        fillLoginForm(email, password);
+        clickLoginButton();
+        mainPage.waitForLoadElement();
+    }
+
+    @Step("login through the “Personal Account” button test")
+    public void loginPersonalAccount(String email, String password) {
+        mainPage.clickPersonal();
+        waitForLoadElement();
+        fillLoginForm(email, password);
+        clickLoginButton();
+        mainPage.waitForLoadElement();
+    }
+
+    @Step("log in from registration page test")
+    public void loginRegistrationPage(String email, String password) {
+        mainPage.clickLogin();
+        clickRegister();
+        registrationPage.waitForLoadElement();
+        registrationPage.clickLogin();
+        waitForLoadElement();
+        fillLoginForm(email, password);
+        clickLoginButton();
+        mainPage.waitForLoadElement();
+    }
+
+    @Step("login from password recovery page test")
+    public void loginResetPasswordPage(String email, String password) {
+        mainPage.clickLogin();
+        waitForLoadElement();
+        clickReset();
+        passwordRecovery.waitForLoad();
+        passwordRecovery.clickLogin();
+        waitForLoadElement();
+        fillLoginForm(email, password);
+        clickLoginButton();
+        mainPage.waitForLoadElement();
+    }
 }
-

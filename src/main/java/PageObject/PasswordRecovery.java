@@ -3,22 +3,26 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-public class PasswordRecovery {
-    private WebDriver driver;
+import io.qameta.allure.Step;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 
-    // Используйте конструктор для инициализации WebDriver
-    public PasswordRecovery(WebDriver webDriver) {
-        this.driver = webDriver;
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--start-maximized");
+public class PasswordRecovery extends BasePage {
+
+    private final By forgetPassword = By.xpath("//h2[text()='Восстановление пароля']");
+    private final By buttonEnter = By.xpath("//a[@href='/login']");
+
+    public PasswordRecovery(WebDriver driver) {
+        super(driver);
     }
 
-    // Локатор для кнопки "Восстановление пароля"
-    private final By buttonLoginRecovery = By.className("Auth_link__1fOlj");
+    @Step("click login button")
+    public void clickLogin() {
+        driver.findElement(buttonEnter).click();
+    }
 
-    // Метод для получения локатора кнопки "Восстановление пароля"
-    public void getButtonLoginRecoveryLocator() {
-        driver.findElement(buttonLoginRecovery).click();
+    @Step("wait for forget password page")
+    public void waitForLoad() {
+        waitForElementVisibility(forgetPassword);
     }
 }
-
